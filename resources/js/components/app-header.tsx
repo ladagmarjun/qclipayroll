@@ -43,11 +43,16 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Employee',
+        href: dashboard(),
+        icon: LayoutGrid,
+    },
 ];
 
 const rightNavItems: NavItem[] = [
     {
-        title: 'Repository',
+        title: 'Repositorys',
         href: 'https://github.com/laravel/react-starter-kit',
         icon: Folder,
     },

@@ -22,6 +22,21 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Employee',
+        href: "/employees",
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Department',
+        href:  "/departments",
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Position',
+        href: dashboard(),
+        icon: LayoutGrid,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
