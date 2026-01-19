@@ -15,6 +15,7 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
+import { route } from 'ziggy-js';
 
 const mainNavItems: NavItem[] = [
     {
@@ -22,6 +23,9 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+];
+
+const managementItems: NavItem[] = [
     {
         title: 'Employees',
         href: "/employees",
@@ -34,7 +38,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Positions',
-        href: dashboard(),
+        href: "/positions",
         icon: LayoutGrid,
     },
 ];
@@ -68,7 +72,8 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain title='Home' items={mainNavItems} />
+                <NavMain title='Management' items={managementItems} />
             </SidebarContent>
 
             <SidebarFooter>
