@@ -32,6 +32,11 @@ const managementItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
+        title: 'Divisions',
+        href: "/divisions",
+        icon: LayoutGrid,
+    },
+    {
         title: 'Departments',
         href:  "/departments",
         icon: LayoutGrid,

@@ -30,43 +30,45 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-    title: 'Positions',
+  {
+    title: 'Divisions',
     href: dashboard().url,
-    },
+  },
 ]
 
-interface PositionItem {
-    id: number
-    name: string
-    description: string
+
+interface DivisionItem {
+  id: number
+  name: string
+  description: string
 }
 
 interface PaginationMeta {
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-    [key: string]: unknown
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+  [key: string]: unknown
 }
 
 interface PaginationLinks {
-    url: string | null
-    label: string
-    active: boolean
+  url: string | null
+  label: string
+  active: boolean
 }
 
-export interface PaginatedPositions {
-    data: PositionItem[]
-    meta: PaginationMeta
-    links: PaginationLinks[]
+export interface PaginatedDivisions {
+  data: DivisionItem[]
+  meta: PaginationMeta
+  links: PaginationLinks[]
 }
 
 interface Props {
-  positions: PaginatedPositions
+  divisions: PaginatedDivisions
 }
 
-export default function Dashboard({ positions }: Props) {
+export default function Dashboard({ divisions }: Props) {
+
     const [modalOpen, setModalOpen] = useState(false)
 
     const { data, setData, post, put, processing, reset, errors } = useForm({
@@ -77,14 +79,14 @@ export default function Dashboard({ positions }: Props) {
 
     const submit = () => {
         if (data.id != 0) {
-            put(route('positions.update', data.id), {
+            put(route('divisions.update', data.id), {
                 onSuccess: () => {
                     reset()
                     setModalOpen(false)
                 },
             })
         } else {
-            post(route('positions.store'), {
+            post(route('divisions.store'), {
                 onSuccess: () => {
                     reset()
                     setModalOpen(false)
@@ -97,22 +99,22 @@ export default function Dashboard({ positions }: Props) {
         setModalOpen(true) 
     }
 
-    const handleEditDepartment = (position: PositionItem) => {
+    const handleEditDepartment = (division: DivisionItem) => {
         setData({
-            id: position.id,
-            name: position.name,
-            description: position.description,
+            id: division.id,
+            name: division.name,
+            description: division.description,
         })
         setModalOpen(true)
     }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Positions" />
+            <Head title="Divisions" />
               <CardDetail
-                    title="Positions"
-                    description="List of registered positions"
-                    buttonText="Add Position"
+                    title="Divisions"
+                    description="List of registered divisions"
+                    buttonText="Add Division"
                     onButtonClick={handleAddDepartment}
                 >
                      <Table>
@@ -125,7 +127,7 @@ export default function Dashboard({ positions }: Props) {
                         </TableHeader>
 
                         <TableBody>
-                            {positions.data.map(e => (
+                            {divisions.data.map(e => (
                                 <TableRow key={e.id}>
                                     <TableCell>{e.name}</TableCell>
                                     <TableCell>{e.description}</TableCell>
@@ -144,9 +146,9 @@ export default function Dashboard({ positions }: Props) {
                 <Dialog open={modalOpen} onOpenChange={setModalOpen}>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Add Position</DialogTitle>
+                            <DialogTitle>Add Division</DialogTitle>
                             <DialogDescription>
-                            Fill in the department details
+                            Fill in the division details
                             </DialogDescription>
                         </DialogHeader>
 
@@ -178,10 +180,10 @@ export default function Dashboard({ positions }: Props) {
 
                     <DialogFooter>
                         <Button
-                            onClick={submit}
-                            disabled={processing}
+                        onClick={submit}
+                        disabled={processing}
                         >
-                            {processing ? 'Saving...' : 'Save'}
+                        {processing ? 'Saving...' : 'Save'}
                         </Button>
                     </DialogFooter>
                     </DialogContent>
