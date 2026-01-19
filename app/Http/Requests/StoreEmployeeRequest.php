@@ -11,7 +11,7 @@ class StoreEmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,21 @@ class StoreEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:employees,email'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'salary' => ['nullable', 'numeric', 'gt:0'],
+            'hired_at' => ['nullable', 'date'],
+            'department_id' => ['required', 'exists:departments,id'],
+            'position_id' => ['required', 'exists:positions,id'],   
+            'division_id' => ['nullable', 'exists:divisions,id'],
+            'gender' => ['required', 'string', 'in:male,female,other'],
+            'marital_status' => ['required', 'string', 'in:single,married,divorced,widowed'],
+            'employment_type' => ['required', 'string'],
+            'employment_status' => ['required', 'string'],
+            'address' => ['nullable', 'string', 'max:500'],
         ];
     }
 }
