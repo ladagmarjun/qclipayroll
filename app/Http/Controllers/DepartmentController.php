@@ -13,7 +13,11 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        return Inertia::render('department/Index');
+        $departments = Department::paginate(10);
+
+        return Inertia::render('department/Index', [
+            'departments' => $departments
+        ]);
     }
 
     /**
@@ -29,7 +33,14 @@ class DepartmentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        Department::create($request->all());
+
+        return redirect()->back()->with('success', 'Department created successfully.');
     }
 
     /**
@@ -53,7 +64,14 @@ class DepartmentController extends Controller
      */
     public function update(Request $request, Department $department)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $department->update($request->all());
+
+        return redirect()->back()->with('success', 'Department updated successfully.');
     }
 
     /**

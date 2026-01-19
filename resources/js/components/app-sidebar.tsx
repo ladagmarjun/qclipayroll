@@ -23,17 +23,17 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Employee',
+        title: 'Employees',
         href: "/employees",
         icon: LayoutGrid,
     },
     {
-        title: 'Department',
+        title: 'Departments',
         href:  "/departments",
         icon: LayoutGrid,
     },
     {
-        title: 'Position',
+        title: 'Positions',
         href: dashboard(),
         icon: LayoutGrid,
     },
