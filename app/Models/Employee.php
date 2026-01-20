@@ -11,6 +11,7 @@ class Employee extends BaseModel
         'department_id',
         'position_id',
         'first_name',
+        'middle_name',
         'last_name',
         'email',
         'salary',

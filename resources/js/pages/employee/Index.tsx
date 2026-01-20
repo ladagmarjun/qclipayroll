@@ -121,6 +121,7 @@ export default function Dashboard({ employees, departments, divisions, positions
         date_of_birth: '',
         gender: '',
         marital_status: '',
+        action: 'add',
     })
 
     const submit = () => {
@@ -131,10 +132,36 @@ export default function Dashboard({ employees, departments, divisions, positions
                     setModalOpen(false)
                 },
             })
+        } else {
+            put(route('employees.update', data.id), {
+                onSuccess: () => {
+                    reset()
+                    setModalOpen(false)
+                },
+            })
         }
     }
 
     const handleAddEmployee = () => {
+        setData({
+            action: 'add'
+        })
+        setModalOpen(true)
+    }
+
+    const handleEditEmployee = (employee: EmployeeItem) => {
+        setData({
+            ...employee,
+            action: 'edit'
+        })
+        setModalOpen(true)
+    }
+
+    const handleViewEmployee = (employee: EmployeeItem) => {
+        setData({
+            ...employee,
+            action: 'view'
+        })
         setModalOpen(true)
     }
     
@@ -151,34 +178,44 @@ export default function Dashboard({ employees, departments, divisions, positions
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead>Employee Code</TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Email</TableHead>
                             <TableHead>Position</TableHead>
+                            <TableHead>Action</TableHead>
                         </TableRow>
                     </TableHeader>
 
                     <TableBody>
                         {employees.data.map((employee) => (
                             <TableRow key={employee.id}>
+                                <TableCell>{employee.employee_code}</TableCell>
                                 <TableCell>{employee.first_name} {employee.last_name}</TableCell>
                                 <TableCell>{employee.email}</TableCell>
                                 <TableCell>{employee.position_id}</TableCell>
+                                <TableCell className="gap-2 flex mb-2">
+                                    <Button variant="outline" onClick={() => handleViewEmployee(employee)}>View</Button>
+                                    <Button variant="outline" onClick={() => handleEditEmployee(employee)}>Edit</Button>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </CardDetail>
             <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-                <DialogContent className="w-screen max-w-none h-[95vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>Add Employee</DialogTitle>
+                <DialogContent className="max-w-1/2 max-h-[90vh] flex flex-col p-0 overflow-hidden ">
+                    <DialogHeader className='p-6'>
+                        <DialogTitle>
+                            { data.action === 'edit' ? 'Edit Employee' : data.action === 'view' ? 'View Employee' :  'Add New Employee' }
+                        </DialogTitle>
                         <DialogDescription>
-                            Complete employee information
+                            { data.action === 'edit' ? 'Edit Employee' : data.action === 'view' ? 'Employee Information' :  'Complete employee information' }
+                            
                         </DialogDescription>
                     </DialogHeader>
 
                     {/* GRID */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="flex-1 overflow-y-auto px-6 py-4 grid grid-cols-2 gap-4">
 
                         {/* First Name */}
                         <div>
@@ -186,6 +223,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Input
                                 value={data.first_name}
                                 onChange={(e) => setData('first_name', e.target.value)}
+                                readOnly={data.action === 'view'}
                             />
                             {errors.first_name && (
                                 <p className="text-sm text-red-500">{errors.first_name}</p>
@@ -198,6 +236,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Input
                                 value={data.last_name}
                                 onChange={(e) => setData('last_name', e.target.value)}
+                                readOnly={data.action === 'view'}
                             />
                             {errors.last_name && (
                                 <p className="text-sm text-red-500">{errors.last_name}</p>
@@ -209,6 +248,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Label>Middle Name</Label>
                             <Input
                                 value={data.middle_name}
+                                readOnly={data.action === 'view'}
                                 onChange={(e) => setData('middle_name', e.target.value)}
                             />
                         </div>
@@ -220,6 +260,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                                 placeholder="Jr., Sr., III"
                                 value={data.suffix}
                                 onChange={(e) => setData('suffix', e.target.value)}
+                                readOnly={data.action === 'view'}
                             />
                         </div>
 
@@ -230,6 +271,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                                 type="email"
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
+                                readOnly={data.action === 'view'}
                             />
                         </div>
 
@@ -238,6 +280,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Label>Phone</Label>
                             <Input
                                 value={data.phone}
+                                readOnly={data.action === 'view'}
                                 onChange={(e) => setData('phone', e.target.value)}
                             />
                         </div>
@@ -258,6 +301,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Input
                                 value={data.role}
                                 onChange={(e) => setData('role', e.target.value)}
+                                readOnly={data.action === 'view'}
                             />
                         </div>
 
@@ -267,8 +311,10 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Select
                                 value={String(data.position_id)}
                                 onValueChange={(v) => setData('position_id', v)}
+                                disabled={data.action === 'view'}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger
+                                >
                                     <SelectValue placeholder="Select position" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -290,7 +336,8 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Label>Department</Label>
                             <Select
                                 value={String(data.department_id)}
-                                onValueChange={(v) => setData('department_id', v)}
+                                onValueChange={(v) => setData('department_id', Number(v))}
+                                disabled={data.action === 'view'}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select department" />
@@ -314,7 +361,8 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Label>Division</Label>
                             <Select
                                 value={String(data.division_id)}
-                                onValueChange={(v) => setData('division_id', v)}
+                                onValueChange={(v) => setData('division_id', Number(v))}
+                                disabled={data.action === 'view'}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select division" />
@@ -339,6 +387,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Select
                                 value={data.employment_status}
                                 onValueChange={(v) => setData('employment_status', v)}
+                                disabled={data.action === 'view'}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select status" />
@@ -363,6 +412,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Select
                                 value={data.employment_type}
                                 onValueChange={(v) => setData('employment_type', v)}
+                                disabled={data.action === 'view'}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select type" />
@@ -386,6 +436,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Input
                                 type="number"
                                 value={data.salary}
+                                readOnly={data.action === 'view'}
                                 onChange={(e) => setData('salary', Number(e.target.value))}
                             />
                             
@@ -400,6 +451,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Input
                                 type="number"
                                 value={data.allowance}
+                                readOnly={data.action === 'view'}
                                 onChange={(e) => setData('allowance', Number(e.target.value))}
                             />
                         </div>
@@ -410,6 +462,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Input
                                 type="date"
                                 value={data.hired_at}
+                                readOnly={data.action === 'view'}
                                 onChange={(e) => setData('hired_at', e.target.value)}
                             />
                             
@@ -424,6 +477,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Input
                                 type="date"
                                 value={data.date_of_birth}
+                                readOnly={data.action === 'view'}
                                 onChange={(e) => setData('date_of_birth', e.target.value)}
                             />
                             
@@ -438,6 +492,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Select
                                 value={data.gender}
                                 onValueChange={(v) => setData('gender', v)}
+                                disabled={data.action === 'view'}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select gender" />
@@ -460,6 +515,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Select
                                 value={data.marital_status}
                                 onValueChange={(v) => setData('marital_status', v)}
+                                disabled={data.action === 'view'}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select status" />
@@ -482,6 +538,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                             <Input
                                 value={data.address}
                                 onChange={(e) => setData('address', e.target.value)}
+                                readOnly={data.action === 'view'}
                             />
                             
                             {errors.address && (
@@ -490,12 +547,13 @@ export default function Dashboard({ employees, departments, divisions, positions
                         </div>
 
                     </div>
-
-                    <DialogFooter>
-                        <Button onClick={submit} disabled={processing}>
-                            {processing ? 'Saving...' : 'Save Employee'}
-                        </Button>
-                    </DialogFooter>
+                    {data.action !== 'view' && (
+                        <DialogFooter className='p-6'>
+                            <Button onClick={submit} disabled={processing}>
+                                {processing ? 'Saving...' : 'Save Employee'}
+                            </Button>
+                        </DialogFooter>
+                    )}
                 </DialogContent>
             </Dialog>
 
