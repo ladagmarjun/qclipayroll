@@ -46,6 +46,11 @@ const managementItems: NavItem[] = [
         href: "/positions",
         icon: LayoutGrid,
     },
+    {
+        title: 'Schedules',
+        href: "/schedules",
+        icon: LayoutGrid,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\DepartmentController;
 
 Route::get('/', function () {
@@ -23,6 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('divisions', DivisionController::class);
     Route::resource('departments', DepartmentController::class);
     Route::resource('employees', EmployeeController::class);
+    Route::resource('schedules', ScheduleController::class);
 });
 
 require __DIR__.'/settings.php';
