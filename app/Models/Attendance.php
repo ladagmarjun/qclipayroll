@@ -17,4 +17,14 @@ class Attendance extends Model
         'overtime_minutes',
         'status',
     ];
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class);
+    }
 }

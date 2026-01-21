@@ -23,6 +23,11 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Attendances',
+        href: '/attendances',
+        icon: LayoutGrid,
+    },
 ];
 
 const managementItems: NavItem[] = [

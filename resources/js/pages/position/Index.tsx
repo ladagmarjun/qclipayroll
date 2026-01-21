@@ -146,7 +146,7 @@ export default function Dashboard({ positions }: Props) {
                         <DialogHeader>
                             <DialogTitle>Add Position</DialogTitle>
                             <DialogDescription>
-                            Fill in the department details
+                            Fill in the position details
                             </DialogDescription>
                         </DialogHeader>
 
