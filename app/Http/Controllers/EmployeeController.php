@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Models\Division;
 use App\Models\Employee;
 use App\Models\Position;
+use App\Models\Schedule;
 use App\Models\Department;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
@@ -18,8 +19,9 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employees = Employee::paginate(10);
+        $employees = Employee::with('schedules')->paginate(10);
         $employeeCode = 'EMP-' . str_pad(Employee::count() + 1, 5, '0', STR_PAD_LEFT);
+        $schedules = Schedule::all();
 
         return Inertia::render('employee/Index', [
             'employees' => $employees,
@@ -27,6 +29,7 @@ class EmployeeController extends Controller
             'departments' => Department::all(),
             'positions' => Position::all(),
             'employeeCode' => $employeeCode,
+            'schedules'=> $schedules,
         ]);
     }
 
@@ -62,7 +65,19 @@ class EmployeeController extends Controller
         ]);
 
         $request->merge(['user_id' => $user->id]);
-        Employee::create($request->all());
+        $employee = Employee::create($request->all());
+
+        if ($request->has('schedules')) {
+            foreach ($request->schedules as $scheduleId) {
+                $employee->schedules()->create([
+                    'schedule_id' => $scheduleId,
+                    'effective_from' => now(),
+                    'is_default' => false,
+                ]);
+            }
+        }
+
+        return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
 
     }
 
@@ -88,6 +103,20 @@ class EmployeeController extends Controller
     public function update(UpdateEmployeeRequest $request, Employee $employee)
     {
         $employee->update($request->all());
+
+        if ($request->has('schedules')) {
+            // Remove existing schedules
+            $employee->schedules()->delete();
+
+            // Add new schedules
+            foreach ($request->schedules as $scheduleId) {
+                $employee->schedules()->create([
+                    'schedule_id' => $scheduleId,
+                    'effective_from' => now(),
+                    'is_default' => false,
+                ]);
+            }
+        }
 
         return redirect()->route('employees.index');
     }

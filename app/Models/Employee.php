@@ -27,10 +27,11 @@ class Employee extends BaseModel
         'date_of_birth',
         'gender',
         'marital_status',
-        'suffix'
+        'suffix',
+        'phone',
     ];
 
-    public function employeeSchedules(): HasMany
+    public function schedules(): HasMany
     {
         return $this->hasMany(EmployeeSchedule::class);
     }

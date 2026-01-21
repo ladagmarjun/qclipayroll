@@ -2,6 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
+import { Checkbox } from "@/components/ui/checkbox"
 
 import {
   Table,
@@ -44,59 +45,61 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 interface EmployeeItem {
-  id: number
-  first_name: string
-  last_name: string
-  middle_name: string
-  suffix: string
-  email: string
-  phone: string
-  position_id: string
-  division_id: number
-  department_id: number
-  employee_code: string
-  salary: number
-  allowance: number
-  hired_at: string
-  role: string
-  employment_status: string
-  employment_type: string
-  address: string
-  date_of_birth: string
-  gender: string
-  marital_status: string
+    id: number
+    first_name: string
+    last_name: string
+    middle_name: string
+    suffix: string
+    email: string
+    phone: string
+    position_id: string
+    division_id: number
+    department_id: number
+    employee_code: string
+    salary: number
+    allowance: number
+    hired_at: string
+    role: string
+    employment_status: string
+    employment_type: string
+    address: string
+    date_of_birth: string
+    gender: string
+    marital_status: string
+    schedules: number[]  
 }
 
 interface PaginationMeta {
-  current_page: number
-  last_page: number
-  per_page: number
-  total: number
-  [key: string]: unknown
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+    [key: string]: unknown
 }
 
 interface PaginationLinks {
-  url: string | null
-  label: string
-  active: boolean
+    url: string | null
+    label: string
+    active: boolean
 }
 
 export interface PaginatedEmployees {
-  data: EmployeeItem[]
-  meta: PaginationMeta
-  links: PaginationLinks[]
+    data: EmployeeItem[]
+    meta: PaginationMeta
+    links: PaginationLinks[]
 }
 
 interface Props {
-  employees: PaginatedEmployees
-  departments: { id: number; name: string }[]
-  divisions: { id: number; name: string }[]
-  positions: { id: number; name: string }[]
-  employeeCode: string
+    employees: PaginatedEmployees
+    departments: { id: number; name: string }[]
+    divisions: { id: number; name: string }[]
+    positions: { id: number; name: string }[]
+    employeeCode: string
+    schedules: { id: number; name: string, time_in: string , time_out: string, break_time: number}[]
 }
 
 
-export default function Dashboard({ employees, departments, divisions, positions, employeeCode }: Props) {
+export default function Dashboard({ employees, departments, divisions, positions, employeeCode, schedules }: Props) {
 
     const [modalOpen, setModalOpen] = useState(false)
     const { data, setData, post, put, processing, reset, errors } = useForm({
@@ -122,6 +125,7 @@ export default function Dashboard({ employees, departments, divisions, positions
         gender: '',
         marital_status: '',
         action: 'add',
+        schedules: [] as number[],
     })
 
     const submit = () => {
@@ -144,6 +148,8 @@ export default function Dashboard({ employees, departments, divisions, positions
 
     const handleAddEmployee = () => {
         setData({
+            id: 0,
+            employee_code: employeeCode,
             action: 'add'
         })
         setModalOpen(true)
@@ -152,6 +158,7 @@ export default function Dashboard({ employees, departments, divisions, positions
     const handleEditEmployee = (employee: EmployeeItem) => {
         setData({
             ...employee,
+            schedules: employee.schedules?.map((es: any) => es.id) ?? [],
             action: 'edit'
         })
         setModalOpen(true)
@@ -160,6 +167,7 @@ export default function Dashboard({ employees, departments, divisions, positions
     const handleViewEmployee = (employee: EmployeeItem) => {
         setData({
             ...employee,
+            schedules: employee.schedules?.map((es: any) => es.id) ?? [],
             action: 'view'
         })
         setModalOpen(true)
@@ -545,6 +553,39 @@ export default function Dashboard({ employees, departments, divisions, positions
                                 <p className="text-sm text-red-500">{errors.address}</p>
                             )}
                         </div>
+
+                        <div className="space-y-2 col-span-2">
+                            <Label>Schedules</Label>
+
+                            {schedules.map((s) => {
+                                const checked = (data.schedules ?? []).includes(s.id)
+
+                                return (
+                                    <div key={s.id} className="flex items-center gap-2">
+                                        <Checkbox
+                                            checked={checked}
+                                            onCheckedChange={(val) => {
+                                                const isChecked = Boolean(val)
+
+                                                setData(
+                                                    "schedules",
+                                                    isChecked
+                                                        ? [...(data.schedules ?? []), s.id]
+                                                        : (data.schedules ?? []).filter(id => id !== s.id)
+                                                )
+                                            }}
+                                            disabled={data.action === "view"}
+                                        />
+
+                                        <span className="text-sm">
+                                            {s.name} ({s.time_in} – {s.time_out}, Break: {s.break_time} mins)
+                                        </span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+
+
 
                     </div>
                     {data.action !== 'view' && (
