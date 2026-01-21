@@ -211,7 +211,7 @@ export default function Dashboard({ employees, departments, divisions, positions
                 </Table>
             </CardDetail>
             <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-                <DialogContent className="max-w-1/2 max-h-[90vh] flex flex-col p-0 overflow-hidden ">
+                <DialogContent className="!max-w-1/2 max-h-[90vh] flex flex-col p-0 overflow-hidden ">
                     <DialogHeader className='p-6'>
                         <DialogTitle>
                             { data.action === 'edit' ? 'Edit Employee' : data.action === 'view' ? 'View Employee' :  'Add New Employee' }
