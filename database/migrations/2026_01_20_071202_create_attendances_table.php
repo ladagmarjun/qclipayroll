@@ -18,9 +18,8 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->foreignId('schedule_id')
-                ->constrained()
-                ->cascadeOnDelete();
+            $table->time('time_in')->nullable();
+            $table->time('time_out')->nullable();
 
             $table->date('attendance_date');
 
@@ -30,7 +29,10 @@ return new class extends Migration
             $table->integer('late_minutes')->default(0);
             $table->integer('undertime_minutes')->default(0);
             $table->integer('overtime_minutes')->default(0);
+            $table->integer('break_time_minutes')->default(0);
+            $table->integer('total_minutes')->default(0);
 
+            $table->text('remarks')->nullable();
             $table->string('status')->default('Present');
             $table->timestamps();
 

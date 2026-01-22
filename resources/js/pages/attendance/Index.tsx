@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout'
 import { dashboard } from '@/routes'
 import { type BreadcrumbItem } from '@/types'
-import { Head, useForm } from '@inertiajs/react'
+import { Head, router, useForm } from '@inertiajs/react'
 import { useState } from 'react'
 import { route } from 'ziggy-js'
 import CardDetail from "@/components/cardContent"
@@ -24,6 +24,17 @@ import {
 } from "@/components/ui/select"
 
 import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
+
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -43,10 +54,21 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ]
 
-interface PositionItem {
+interface AttendanceItem {
     id: number
-    name: string
-    description: string
+    time_in_actual: string
+    time_out_actual: string
+    attendance_date: string
+    late_minutes: number
+    overtime_minutes: number
+    undertime_minutes: number
+    time_in: string
+    time_out: string
+    total_minutes: number
+    employee: Employee
+    remarks: string
+    break_time_minutes: number
+    status: string
 }
 
 interface ScheduleDetail {
@@ -54,6 +76,7 @@ interface ScheduleDetail {
     name: string
     time_in: string
     time_out: string
+    break_minutes: string
 }
 
 interface EmployeeSchedule {
@@ -84,7 +107,7 @@ interface PaginationLinks {
 }
 
 export interface PaginatedPositions {
-    data: PositionItem[]
+    data: AttendanceItem[]
     meta: PaginationMeta
     links: PaginationLinks[]
 }
@@ -101,14 +124,18 @@ export default function Dashboard({ attendances, employees }: Props) {
     const [dateError, setDateError] = useState<string | null>(null)
     const [employeeErrors, setEmployeeErrors] = useState<string | null>(null)
     const [scheduleErrors, setScheduleErrors] = useState<string | null>(null)
-
+    const [selectedAttendance, setSelectedAttendance] = useState<AttendanceItem>();
+    
     const { data, setData, post, processing, reset} = useForm<{
         employee_id: number
+        employee_schedule_id: number
         schedule_id: number
         time_in: string
         time_out: string
         date: string
-        overtime: 0,
+        overtime: number,
+        breaktime_minutes: number,
+        remarks: string,
         attendances: {
             employee_id: number
             schedule_id: number
@@ -116,6 +143,9 @@ export default function Dashboard({ attendances, employees }: Props) {
             time_in: string
             time_out: string
             overtime: number,
+            breaktime_minutes: number,
+            employee_schedule_id: number
+            remarks: string,
         }[]
     }>({
         employee_id: 0,
@@ -125,6 +155,9 @@ export default function Dashboard({ attendances, employees }: Props) {
         time_out: "",
         overtime: 0,
         attendances: [],
+        breaktime_minutes: 0,
+        remarks: "",
+        employee_schedule_id: 0,
     })
 
     const selectedEmployee = employees.find(
@@ -144,6 +177,31 @@ export default function Dashboard({ attendances, employees }: Props) {
         setModalOpen(true) 
     }
 
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('en-US', {
+            month: 'numeric',
+            day: 'numeric',
+            year: 'numeric',
+        })
+    }
+
+    const formatTime = (time: string) => {
+        return new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true, // set to false if you want 24-hour format
+        })
+    }
+
+    const confirmDelete = (item: {id: number}) => {
+        router.delete(route('attendances.destroy', item.id), {
+            onSuccess: () => {
+            },
+            onError: () => {
+            },
+        });
+    }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Attendances" />
@@ -157,7 +215,15 @@ export default function Dashboard({ attendances, employees }: Props) {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
-                                <TableHead>Description</TableHead>
+                                <TableHead>Schedule</TableHead>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Time In / Time Out</TableHead>
+                                <TableHead>Late Minutes</TableHead>
+                                <TableHead>Undertime Minutes</TableHead>
+                                <TableHead>Overtime Minutes</TableHead>
+                                <TableHead>Breaktime Minutes</TableHead>
+                                <TableHead>Total Minutes</TableHead>
+                                <TableHead>Remarks</TableHead>
                                 <TableHead>Action</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -165,9 +231,27 @@ export default function Dashboard({ attendances, employees }: Props) {
                         <TableBody>
                             {attendances.data.map(e => (
                                 <TableRow key={e.id}>
-                                    <TableCell>{e.name}</TableCell>
-                                    <TableCell>{e.description}</TableCell>
+                                    <TableCell>{ e.employee.first_name } { e.employee.last_name }</TableCell>
+                                    <TableCell>{ formatTime(e.time_in)} - { formatTime(e.time_out)}</TableCell>
+                                    <TableCell>{formatDate(e.attendance_date)}</TableCell>
+                                    <TableCell>{formatTime(e.time_in_actual)} - {formatTime(e.time_out_actual)}</TableCell>
+                                    <TableCell>{e.late_minutes}</TableCell>
+                                    <TableCell>{e.undertime_minutes}</TableCell>
+                                    <TableCell>{e.overtime_minutes}</TableCell>
+                                    <TableCell>{e.break_time_minutes}</TableCell>
+                                    <TableCell>{e.total_minutes}</TableCell>
+                                    <TableCell>{e.remarks}</TableCell>
                                     <TableCell>
+                                        {e.status == 'Created' && (
+                                            <Button
+                                                key={e.id}
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setSelectedAttendance(e)}
+                                            >
+                                                Delete
+                                            </Button>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -175,7 +259,7 @@ export default function Dashboard({ attendances, employees }: Props) {
                     </Table>
                 </CardDetail>
                 <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-                    <DialogContent className="!md:w-1/2 !max-w-2xl">
+                    <DialogContent className="!md:w-3/4 max-w-4xl!">
                         <DialogHeader>
                             <DialogTitle>Add Attendance</DialogTitle>
                             <DialogDescription>
@@ -212,8 +296,20 @@ export default function Dashboard({ attendances, employees }: Props) {
                             <div>
                                 <Label htmlFor="employee_id">Select Schedule</Label>
                                 <Select
-                                    value={data.schedule_id ? String(data.schedule_id) : ""}
-                                    onValueChange={(v) => setData("schedule_id", Number(v))}
+                                    value={data.employee_schedule_id ? String(data.employee_schedule_id) : ""}
+                                    onValueChange={(v) => {
+                                        const scheduleId = Number(v)
+                                        const selectedSchedule = selectedEmployee?.schedules.find(
+                                            (s) => s.id === scheduleId
+                                        )
+
+                                        setData("employee_schedule_id", Number(v))
+                                        setData("schedule_id", Number(selectedSchedule?.schedule?.id ?? 0))
+                                        setData(
+                                            "breaktime_minutes",
+                                            Number(selectedSchedule?.schedule?.break_minutes ?? 0)
+                                        )
+                                    }}
                                     disabled={!selectedEmployee}
                                 >
                                     <SelectTrigger>
@@ -271,12 +367,29 @@ export default function Dashboard({ attendances, employees }: Props) {
                                     )}
                                 </div>
                             </div>
-                            <div className='flex-1'>
-                                <Label>Overtime</Label>
+                            <div className="flex gap-2 flex-row">
+                                <div className='flex-1'>
+                                    <Label>Break Time Minutes</Label>
+                                    <Input
+                                        type="number"
+                                        value={data.breaktime_minutes}
+                                        onChange={(e) => setData("breaktime_minutes", Number(e.target.value))}
+                                    />
+                                </div>
+                                <div className='flex-1'>
+                                    <Label>Overtime</Label>
+                                    <Input
+                                        type="number"
+                                        value={data.overtime}
+                                        onChange={(e) => setData("overtime", Number(e.target.value))}
+                                    />
+                                </div>
+                            </div>
+                            <div className="gap-2 ">
+                                <Label>Remarks</Label>
                                 <Input
-                                    type="number"
-                                    value={data.overtime}
-                                    onChange={(e) => setData("overtime", Number(e.target.value))}
+                                    value={data.remarks}
+                                    onChange={(e) => setData("remarks", (e.target.value))}
                                 />
                             </div>
 
@@ -288,7 +401,7 @@ export default function Dashboard({ attendances, employees }: Props) {
                                         return
                                     }
 
-                                    if (!data.schedule_id) {
+                                    if (!data.employee_schedule_id) {
                                         setScheduleErrors("Schedule is required.")
                                         return
                                     }
@@ -318,6 +431,9 @@ export default function Dashboard({ attendances, employees }: Props) {
                                             time_out: data.time_out,
                                             date: data.date,
                                             overtime: data.overtime,
+                                            breaktime_minutes: data.breaktime_minutes,
+                                            remarks: data.remarks,
+                                            employee_schedule_id: data.employee_schedule_id
                                         },
                                     ])
 
@@ -337,6 +453,8 @@ export default function Dashboard({ attendances, employees }: Props) {
                                             <TableHead>Time In</TableHead>
                                             <TableHead>Time Out</TableHead>
                                             <TableHead>Overtime</TableHead>
+                                            <TableHead>Breaktime</TableHead>
+                                            <TableHead>Remarks</TableHead>
                                             <TableHead>Action</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -344,7 +462,7 @@ export default function Dashboard({ attendances, employees }: Props) {
                                     <TableBody>
                                         {data.attendances.map((a, index) => {
                                         const employee = employees.find(e => e.id === a.employee_id)
-                                        const schedule = employee?.schedules.find(s => s.schedule_id === a.schedule_id)
+                                        const schedule = employee?.schedules.find(s => s.id === a.employee_schedule_id)
 
                                         return (
                                             <TableRow key={index}>
@@ -356,10 +474,12 @@ export default function Dashboard({ attendances, employees }: Props) {
                                                 {schedule ? schedule.schedule.time_in + "-" + schedule.schedule.time_out : "Unknown"}
                                             </TableCell>
 
-                                            <TableCell>{a.date}</TableCell>
-                                            <TableCell>{a.time_in}</TableCell>
-                                            <TableCell>{a.time_out}</TableCell>
+                                            <TableCell>{formatDate(a.date)}</TableCell>
+                                            <TableCell>{formatTime(a.time_in)}</TableCell>
+                                            <TableCell>{formatTime(a.time_out)}</TableCell>
                                             <TableCell>{a.overtime}</TableCell>
+                                            <TableCell>{a.breaktime_minutes}</TableCell>
+                                            <TableCell>{a.remarks}</TableCell>
 
                                             <TableCell>
                                                 <Button
@@ -399,6 +519,28 @@ export default function Dashboard({ attendances, employees }: Props) {
                     </DialogFooter>
                     </DialogContent>
                 </Dialog>
+
+                <AlertDialog open={!!selectedAttendance} onOpenChange={(open) => !open && setSelectedAttendance(null!)}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Delete attendance?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Are you sure you want to delete{" "}
+                                {selectedAttendance?.employee?.first_name}?
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => confirmDelete(selectedAttendance!)}>
+                                Delete
+                            </AlertDialogAction>
+                            </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+
         </AppLayout>
     )
 }

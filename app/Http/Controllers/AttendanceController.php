@@ -14,7 +14,7 @@ class AttendanceController extends Controller
      */
     public function index()
     {
-        $attendances = Attendance::with('employee')->paginate(10);
+        $attendances = Attendance::with('employee', 'schedule')->paginate(10);
         $employees = Employee::with('schedules.schedule')->get();
 
         return inertia('attendance/Index', [
@@ -37,39 +37,77 @@ class AttendanceController extends Controller
     public function store(Request $request)
     {
         foreach ($request->attendances as $attendanceData) {
+
             $late = 0;
             $undertime = 0;
 
             $schedule = Schedule::find($attendanceData['schedule_id']);
 
+            $actualTimeIn = strtotime($attendanceData['date'] . ' ' . $attendanceData['time_in']);
+            $actualTimeOut = strtotime($attendanceData['date'] . ' ' . $attendanceData['time_out']);
+
+            $workedMinutes = 0;
+            
+            if ($schedule && $actualTimeIn && $actualTimeOut) {
+
+                $scheduledTimeIn = strtotime($attendanceData['date'] . ' ' . $schedule->time_in);
+                $scheduledTimeOut = strtotime($attendanceData['date'] . ' ' . $schedule->time_out);
+
+                // Start time: later of scheduled or actual (prevents early-in abuse)
+                $startTime = max($actualTimeIn, $scheduledTimeIn);
+
+                // End time: earlier of actual or scheduled (caps overtime)
+                $endTime = min($actualTimeOut, $scheduledTimeOut);
+
+                if ($endTime > $startTime) {
+                    $workedMinutes = ($endTime - $startTime) / 60;
+                }
+            }
+
+            $breakTimeMinutes = (int) ($attendanceData['breaktime_minutes'] ?? 0);
+
             if ($schedule) {
                 $scheduledTimeIn = strtotime($attendanceData['date'] . ' ' . $schedule->time_in);
-                $actualTimeIn = strtotime($attendanceData['date'] . ' ' . $attendanceData['time_in']);
+                $scheduledTimeOut = strtotime($attendanceData['date'] . ' ' . $schedule->time_out);
 
                 if ($actualTimeIn > $scheduledTimeIn) {
                     $late = ($actualTimeIn - $scheduledTimeIn) / 60;
                 }
-
-                $scheduledTimeOut = strtotime($attendanceData['date'] . ' ' . $schedule->time_out);
-                $actualTimeOut = strtotime($attendanceData['date'] . ' ' . $attendanceData['time_out']);
 
                 if ($actualTimeOut < $scheduledTimeOut) {
                     $undertime = ($scheduledTimeOut - $actualTimeOut) / 60;
                 }
             }
 
+            $totalMinutes =
+                $workedMinutes
+                - $breakTimeMinutes
+                + (int) ($attendanceData['overtime'] ?? 0);
+
+            $totalMinutes = max(0, (int) $totalMinutes);
+
             Attendance::create([
                 'employee_id' => $attendanceData['employee_id'],
-                'schedule_id' => $attendanceData['schedule_id'],
                 'attendance_date' => $attendanceData['date'],
+                
+                'time_in' => $schedule->time_in,
+                'time_out' => $schedule->time_out,
+
                 'time_in_actual' => $attendanceData['time_in'],
                 'time_out_actual' => $attendanceData['time_out'],
-                'overtime_minutes' => $attendanceData['overtime'],
-                'late_minutes' => $late,
-                'undertime_minutes' => $undertime,
+
+                'late_minutes' => (int) $late,
+                'undertime_minutes' => (int) $undertime,
+                'overtime_minutes' => (int) ($attendanceData['overtime'] ?? 0),
+
+                'break_time_minutes' => $breakTimeMinutes,
+                'total_minutes' => $totalMinutes,
+
+                'remarks' => $attendanceData['remarks'] ?? null,
                 'status' => 'Created',
             ]);
         }
+
 
         return redirect()->back()->with('success', 'Attendance record added successfully.');
     }
@@ -103,6 +141,8 @@ class AttendanceController extends Controller
      */
     public function destroy(Attendance $attendance)
     {
-        //
+        $attendance->delete();
+
+        return redirect()->back()->with('success', 'Successfully deleted');
     }
 }

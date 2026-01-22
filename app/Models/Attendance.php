@@ -8,13 +8,17 @@ class Attendance extends Model
 {
     protected $fillable = [
         'employee_id',
-        'schedule_id',
+        'time_in',
+        'time_out',
         'attendance_date',
         'time_in_actual',
         'time_out_actual',
         'late_minutes',
         'undertime_minutes',
         'overtime_minutes',
+        'break_time_minutes',
+        'total_minutes',
+        'remarks',
         'status',
     ];
 
