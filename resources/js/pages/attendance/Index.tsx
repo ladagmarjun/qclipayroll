@@ -43,6 +43,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -110,6 +119,10 @@ export interface PaginatedPositions {
     data: AttendanceItem[]
     meta: PaginationMeta
     links: PaginationLinks[]
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
 }
 
 interface Props {
@@ -126,6 +139,7 @@ export default function Dashboard({ attendances, employees }: Props) {
     const [scheduleErrors, setScheduleErrors] = useState<string | null>(null)
     const [selectedAttendance, setSelectedAttendance] = useState<AttendanceItem>();
     
+    console.log(attendances)
     const { data, setData, post, processing, reset} = useForm<{
         employee_id: number
         employee_schedule_id: number
@@ -201,6 +215,13 @@ export default function Dashboard({ attendances, employees }: Props) {
             },
         });
     }
+    
+    const changePage = (page: number) => {
+        router.get(route('attendances.index'), { page }, {
+            preserveScroll: true,
+            preserveState: true,
+        })
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -211,7 +232,34 @@ export default function Dashboard({ attendances, employees }: Props) {
                     buttonText="Add Attendance"
                     onButtonClick={handleAddDepartment}
                 >
-                     <Table>
+                    <div className="grid grid-cols-2 flex">
+                        <div>
+                            <Label htmlFor="employee_id">Select Employee</Label>
+                            <Select
+                                value={data.employee_id ? String(data.employee_id) : ""}
+                                onValueChange={(v) => {
+                                    setData("employee_id", Number(v))
+                                    setData("schedule_id", 0) // reset schedule
+                                }}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select employee" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {employees.map(e => (
+                                        <SelectItem key={e.id} value={String(e.id)}>
+                                            {e.first_name} {e.last_name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+
+                            {employeeErrors && (
+                                <p className="text-sm text-red-500">{employeeErrors}</p>
+                            )}
+                        </div>
+                    </div>
+                    <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
@@ -257,6 +305,42 @@ export default function Dashboard({ attendances, employees }: Props) {
                             ))}
                         </TableBody>
                     </Table>
+
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                            <PaginationPrevious
+                                onClick={() => changePage(attendances.current_page - 1)}
+                                className={attendances.current_page === 1 ? "pointer-events-none opacity-50" : ""}
+                            />
+                            </PaginationItem>
+
+                            {Array.from({ length: attendances.last_page }).map((_, i) => {
+                            const page = i + 1
+                            return (
+                                <PaginationItem key={page}>
+                                <PaginationLink
+                                    isActive={attendances.current_page === page}
+                                    onClick={() => changePage(page)}
+                                >
+                                    {page}
+                                </PaginationLink>
+                                </PaginationItem>
+                            )
+                            })}
+
+                            <PaginationItem>
+                            <PaginationNext
+                                onClick={() => changePage(attendances.current_page + 1)}
+                                className={
+                                attendances.current_page === attendances.last_page
+                                    ? "pointer-events-none opacity-50"
+                                    : ""
+                                }
+                            />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 </CardDetail>
                 <Dialog open={modalOpen} onOpenChange={setModalOpen}>
                     <DialogContent className="!md:w-3/4 max-w-4xl!">
