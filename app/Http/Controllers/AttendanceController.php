@@ -20,12 +20,17 @@ class AttendanceController extends Controller
             $query = $query->where('employee_id', $request->employeeId);
         }
         
-        $attendances = $query->where('status', 'Created')->paginate(10);
+        $attendances = $query->where('status', 'Created')
+            ->paginate(1)
+            ->withQueryString(); ;
         $employees = Employee::with('schedules.schedule')->get();
 
         return inertia('attendance/Index', [
             'attendances' => $attendances,
             'employees' => $employees,
+            'filters' => [
+                'employeeId' => $request->employeeId,
+            ],
         ]);
     }
 

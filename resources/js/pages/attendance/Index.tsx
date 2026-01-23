@@ -126,11 +126,14 @@ export interface PaginatedPositions {
 }
 
 interface Props {
-  attendances: PaginatedPositions
-  employees: Employee[]
+    attendances: PaginatedPositions
+    employees: Employee[]
+    filters: {
+        employeeId?: number
+    }
 }
 
-export default function Dashboard({ attendances, employees }: Props) {
+export default function Dashboard({ attendances, employees, filters }: Props) {
     const [modalOpen, setModalOpen] = useState(false)
     const [timeInErrors, setTimeInErrors] = useState<string | null>(null)
     const [timeOutErrors, setTimeOutErrors] = useState<string | null>(null)
@@ -217,7 +220,10 @@ export default function Dashboard({ attendances, employees }: Props) {
     }
     
     const changePage = (page: number) => {
-        router.get(route('attendances.index'), { page }, {
+        router.get(route('attendances.index'), { 
+            page,
+            employeeId: filters.employeeId,
+        }, {
             preserveScroll: true,
             preserveState: true,
         })
