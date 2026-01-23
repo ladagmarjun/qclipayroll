@@ -16,12 +16,12 @@ class AttendanceController extends Controller
     {
         $query = Attendance::with('employee', 'schedule');
 
-        if (isset($request->employeeId)) {
+        if (isset($request->employeeId) && $request->employeeId != "") {
             $query = $query->where('employee_id', $request->employeeId);
         }
         
         $attendances = $query->where('status', 'Created')
-            ->paginate(1)
+            ->paginate(15)
             ->withQueryString(); ;
         $employees = Employee::with('schedules.schedule')->get();
 

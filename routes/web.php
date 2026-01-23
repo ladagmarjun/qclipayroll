@@ -9,6 +9,7 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\OvertimeController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -27,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('employees', EmployeeController::class);
     Route::resource('schedules', ScheduleController::class);
     Route::resource('attendances', AttendanceController::class);
+    Route::resource('overtimes', OvertimeController::class);
 });
 
 require __DIR__.'/settings.php';

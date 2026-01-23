@@ -142,7 +142,6 @@ export default function Dashboard({ attendances, employees, filters }: Props) {
     const [scheduleErrors, setScheduleErrors] = useState<string | null>(null)
     const [selectedAttendance, setSelectedAttendance] = useState<AttendanceItem>();
     
-    console.log(attendances)
     const { data, setData, post, processing, reset} = useForm<{
         employee_id: number
         employee_schedule_id: number
@@ -272,7 +271,7 @@ export default function Dashboard({ attendances, employees, filters }: Props) {
                             )}
                         </div>
                     </div>
-                    <Table>
+                    <Table className="rounded-md border mt-2">
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
