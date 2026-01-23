@@ -223,6 +223,15 @@ export default function Dashboard({ attendances, employees }: Props) {
         })
     }
 
+    const SearchEmployee = (employeeId: string) => {
+        router.get(route('attendances.index'), {
+            employeeId: employeeId
+        }, {
+            preserveScroll: true,
+            preserveState: true,
+        })
+    }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Attendances" />
@@ -232,14 +241,12 @@ export default function Dashboard({ attendances, employees }: Props) {
                     buttonText="Add Attendance"
                     onButtonClick={handleAddDepartment}
                 >
-                    <div className="grid grid-cols-2 flex">
+                    <div className="grid grid-cols-2">
                         <div>
                             <Label htmlFor="employee_id">Select Employee</Label>
                             <Select
-                                value={data.employee_id ? String(data.employee_id) : ""}
                                 onValueChange={(v) => {
-                                    setData("employee_id", Number(v))
-                                    setData("schedule_id", 0) // reset schedule
+                                    SearchEmployee(v)
                                 }}
                             >
                                 <SelectTrigger>

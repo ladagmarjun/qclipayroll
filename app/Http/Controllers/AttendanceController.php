@@ -12,9 +12,15 @@ class AttendanceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $attendances = Attendance::with('employee', 'schedule')->paginate(10);
+        $query = Attendance::with('employee', 'schedule');
+
+        if (isset($request->employeeId)) {
+            $query = $query->where('employee_id', $request->employeeId);
+        }
+        
+        $attendances = $query->where('status', 'Created')->paginate(10);
         $employees = Employee::with('schedules.schedule')->get();
 
         return inertia('attendance/Index', [
