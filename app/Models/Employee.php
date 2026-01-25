@@ -41,4 +41,9 @@ class Employee extends BaseModel
         return $this->hasMany(Attendance::class);
     }
 
+    public function governmentDeductions()
+    {
+        return $this->hasMany(EmployeeGovernmentDeduction::class);
+    }
+
 }
