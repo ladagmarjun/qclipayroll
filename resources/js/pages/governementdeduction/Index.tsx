@@ -31,7 +31,7 @@ import { Label } from "@/components/ui/label"
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-    title: 'Positions',
+    title: 'Government Deductions',
     href: dashboard().url,
     },
 ]
@@ -39,7 +39,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface PositionItem {
     id: number
     name: string
-    description: string
+    code: string
 }
 
 interface PaginationMeta {
@@ -63,28 +63,28 @@ export interface PaginatedPositions {
 }
 
 interface Props {
-  positions: PaginatedPositions
+  governmentDeductions: PaginatedPositions
 }
 
-export default function Dashboard({ positions }: Props) {
+export default function Dashboard({ governmentDeductions }: Props) {
     const [modalOpen, setModalOpen] = useState(false)
 
     const { data, setData, post, put, processing, reset, errors } = useForm({
         id: 0,
         name: '',
-        description: '',
+        code: '',
     })
 
     const submit = () => {
         if (data.id != 0) {
-            put(route('positions.update', data.id), {
+            put(route('governmentdeductions.update', data.id), {
                 onSuccess: () => {
                     reset()
                     setModalOpen(false)
                 },
             })
         } else {
-            post(route('positions.store'), {
+            post(route('governmentdeductions.store'), {
                 onSuccess: () => {
                     reset()
                     setModalOpen(false)
@@ -97,43 +97,43 @@ export default function Dashboard({ positions }: Props) {
         setData({
             id: 0,
             name: "",
-            description: "",
+            code: "",
         })
         setModalOpen(true) 
     }
 
-    const handleEditDepartment = (position: PositionItem) => {
+    const handleEditDepartment = (government: PositionItem) => {
         setData({
-            id: position.id,
-            name: position.name,
-            description: position.description,
+            id: government.id,
+            name: government.name,
+            code: government.code,
         })
         setModalOpen(true)
     }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Positions" />
+            <Head title="Government Deductions" />
               <CardDetail
-                    title="Positions"
-                    description="List of registered positions"
-                    buttonText="Add Position"
+                    title="Government Deductions"
+                    description="List of registered government deductions"
+                    buttonText="Add Government Deduction"
                     onButtonClick={handleAddDepartment}
                 >
                      <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
-                                <TableHead>Description</TableHead>
+                                <TableHead>Code</TableHead>
                                 <TableHead>Action</TableHead>
                             </TableRow>
                         </TableHeader>
 
                         <TableBody>
-                            {positions.data.map(e => (
+                            {governmentDeductions.data.map(e => (
                                 <TableRow key={e.id}>
                                     <TableCell>{e.name}</TableCell>
-                                    <TableCell>{e.description}</TableCell>
+                                    <TableCell>{e.code}</TableCell>
                                     <TableCell>
                                         <Button
                                             onClick={() => handleEditDepartment(e)}
@@ -149,9 +149,9 @@ export default function Dashboard({ positions }: Props) {
                 <Dialog open={modalOpen} onOpenChange={setModalOpen}>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Add Position</DialogTitle>
+                            <DialogTitle>Add Government Deduction</DialogTitle>
                             <DialogDescription>
-                            Fill in the position details
+                            Fill in the government deduction details
                             </DialogDescription>
                         </DialogHeader>
 
@@ -169,14 +169,14 @@ export default function Dashboard({ positions }: Props) {
                         </div>
 
                         <div>
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="code">Code</Label>
                         <Input
-                            id="description"
-                            value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            id="code"
+                            value={data.code}
+                            onChange={(e) => setData('code', e.target.value)}
                         />
-                        {errors.description && (
-                            <p className="text-sm text-red-500">{errors.description}</p>
+                        {errors.code && (
+                            <p className="text-sm text-red-500">{errors.code}</p>
                         )}
                         </div>
                     </div>

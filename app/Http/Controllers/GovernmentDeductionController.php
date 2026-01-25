@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GovernmentDeduction;
+use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Models\GovernmentDeduction;
 
 class GovernmentDeductionController extends Controller
 {
@@ -12,7 +13,11 @@ class GovernmentDeductionController extends Controller
      */
     public function index()
     {
-        //
+        $governmentDeductions = GovernmentDeduction::paginate(10);
+
+        return Inertia::render('governementdeduction/Index', [
+            'governmentDeductions' => $governmentDeductions
+        ]);
     }
 
     /**
@@ -28,7 +33,14 @@ class GovernmentDeductionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string',
+        ]);
+
+        GovernmentDeduction::create($request->all());
+
+        return redirect()->back()->with('success', 'Government Deduction created successfully.');
     }
 
     /**
@@ -50,9 +62,16 @@ class GovernmentDeductionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, GovernmentDeduction $governmentDeduction)
+    public function update(Request $request, GovernmentDeduction $governmentdeduction)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string',
+        ]);
+
+        $governmentdeduction->update($request->all());
+
+        return redirect()->back()->with('success', 'Government Deduction updated successfully.');
     }
 
     /**

@@ -61,8 +61,13 @@ const managementItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
+        title: 'Government Deductions',
+        href: "/governmentdeductions",
+        icon: LayoutGrid,
+    },
+    {
         title: 'Employee Loans',
-        href: "/employeeloans",
+        href: "/loanmanagements",
         icon: LayoutGrid,
     },
 ];

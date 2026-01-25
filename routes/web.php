@@ -10,6 +10,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeLoanController;
+use App\Http\Controllers\GovernmentDeductionController;
 use App\Http\Controllers\OvertimeController;
 
 Route::get('/', function () {
@@ -31,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('attendances', AttendanceController::class);
     Route::resource('overtimes', OvertimeController::class);
     Route::resource('loanmanagements', EmployeeLoanController::class);
+    Route::resource('governmentdeductions', GovernmentDeductionController::class);
 });
 
 require __DIR__.'/settings.php';
