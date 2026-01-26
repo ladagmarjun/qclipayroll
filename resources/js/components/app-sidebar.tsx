@@ -32,6 +32,11 @@ const mainNavItems: NavItem[] = [
         href: '/overtimes',
         icon: LayoutGrid,
     },
+    {
+        title: 'Employee Deductions',
+        href: "/employeegovernmentdeductions",
+        icon: LayoutGrid,
+    },
 ];
 
 const managementItems: NavItem[] = [

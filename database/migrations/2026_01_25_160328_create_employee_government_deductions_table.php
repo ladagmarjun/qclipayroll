@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('employee_id')->constrained();
             $table->foreignId('government_deduction_id')->constrained();
             $table->decimal('monthly_amount', 12, 2);
+            $table->json('apply_months');
+            $table->integer('monthly_covered')->default(1);
             $table->boolean('is_active')->default(true);
             $table->date('start_date');
             $table->date('end_date')->nullable();

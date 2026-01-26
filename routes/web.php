@@ -9,6 +9,7 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\EmployeeGovernmentDeductionController;
 use App\Http\Controllers\EmployeeLoanController;
 use App\Http\Controllers\GovernmentDeductionController;
 use App\Http\Controllers\OvertimeController;
@@ -33,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('overtimes', OvertimeController::class);
     Route::resource('loanmanagements', EmployeeLoanController::class);
     Route::resource('governmentdeductions', GovernmentDeductionController::class);
+    Route::resource('employeegovernmentdeductions', EmployeeGovernmentDeductionController::class);
 });
 
 require __DIR__.'/settings.php';
