@@ -37,7 +37,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('governmentdeductions', GovernmentDeductionController::class);
     Route::resource('employeegovernmentdeductions', EmployeeGovernmentDeductionController::class);
     Route::resource('payrolls', PayrollController::class);
-    Route::post('payrolls/{id}/pay', [PayrollController::class, 'pay'])->name('payrolls.pay');
 });
 
 require __DIR__.'/settings.php';

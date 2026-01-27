@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PayrollItem extends Model
 {
@@ -18,4 +20,19 @@ class PayrollItem extends Model
         'total_attendance',
         'total_overtime',
     ];
+    
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function earnings(): HasMany
+    {
+        return $this->hasMany(PayrollEarning::class);
+    }
+    
+    public function deductions(): HasMany
+    {
+        return $this->hasMany(PayrollDeduction::class);
+    }
 }

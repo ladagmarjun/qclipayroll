@@ -10,6 +10,14 @@ import { Label } from '@/components/ui/label'
 import { route } from 'ziggy-js'
 import { Checkbox } from '@/components/ui/checkbox'
 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Payroll', href: dashboard().url },
 ]
@@ -21,18 +29,23 @@ interface PayrollItem {
   period_end: string
   pay_date: string
   status: string
+  division: {
+    name: string
+  }
 }
 
 interface Props {
   payrolls: PayrollItem[]
+  divisions: [{id: number, name: string}]
 }
 
-export default function PayrollIndex({ payrolls }: Props) {
+export default function PayrollIndex({ payrolls, divisions}: Props) {
   const { data, setData, post, processing, errors} = useForm({
     period_start: '',
     period_end: '',
     pay_date: '',
     apply_deductions: false,
+    division_id: '',
   })
 
   const createPayroll = () => {
@@ -70,6 +83,28 @@ export default function PayrollIndex({ payrolls }: Props) {
                   <p className="text-sm text-red-500">{errors.pay_date}</p>
               )}
             </div>
+            <div>
+                <Label>Division</Label>
+                <Select
+                    value={String(data.division_id)}
+                    onValueChange={(v) => setData('division_id', (v))}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select division" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {divisions.map((div) => (
+                            <SelectItem key={div.id} value={String(div.id)}>
+                                {div.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                
+                {errors.division_id && (
+                    <p className="text-sm text-red-500">{errors.division_id}</p>
+                )}
+            </div>
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={data.apply_deductions}
@@ -94,6 +129,7 @@ export default function PayrollIndex({ payrolls }: Props) {
               <TableRow>
                 <TableHead>Payroll Code</TableHead>
                 <TableHead>Period</TableHead>
+                <TableHead>Division</TableHead>
                 <TableHead>Pay Date</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Action</TableHead>
@@ -104,6 +140,7 @@ export default function PayrollIndex({ payrolls }: Props) {
                 <TableRow key={p.id}>
                   <TableCell>{p.payroll_code}</TableCell>
                   <TableCell>{p.period_start} - {p.period_end}</TableCell>
+                  <TableCell>{p.division.name}</TableCell>
                   <TableCell>{p.pay_date}</TableCell>
                   <TableCell>{p.status}</TableCell>
                   <TableCell>

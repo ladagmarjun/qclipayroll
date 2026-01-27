@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Division;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('payrolls', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(Division::class);
             $table->string('payroll_code')->unique();
             $table->date('period_start');
             $table->date('period_end');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\Division;
 use Inertia\Inertia;
 use App\Models\Payroll;
 use App\Models\Employee;
@@ -20,9 +21,10 @@ class PayrollController extends Controller
      */
     public function index()
     {
-        $payrolls = Payroll::get();
+        $payrolls = Payroll::with(['division'])->get();
         return Inertia::render('payroll/Index', [
-            'payrolls' => $payrolls
+            'payrolls' => $payrolls,
+            'divisions' => Division::get(),
         ]);
     }
 
@@ -40,6 +42,7 @@ class PayrollController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'division_id' => 'required|integer|gt:0',
             'period_start' => 'required|date',
             'period_end'   => 'required|date|after_or_equal:period_start',
             'pay_date'     => 'required|date',
@@ -55,9 +58,12 @@ class PayrollController extends Controller
                 'pay_date'     => $request->pay_date,
                 'status'       => 'draft',
                 'apply_deductions' => $request->apply_deductions,
+                'division_id' => $request->division_id,
             ]);
 
-            $employees = Employee::whereIn('employment_status', ['probationary', 'regular', 'casual'])->get();
+            $employees = Employee::whereIn('employment_status', ['probationary', 'regular', 'casual'])
+                ->where('division_id', $request->division_id)
+                ->get();
             
             $dateFrom = Carbon::parse($request->period_start);
             $dateTo = Carbon::parse($request->period_end);
@@ -100,7 +106,7 @@ class PayrollController extends Controller
                         'employee_id' => $employee->id,
                         'basic_salary' => $basicSalary,
                         'total_attendance' => $totalAttendance,
-                        'total_overtime' => $overtimePay,
+                        'total_overtime' => $totalOvertime,
                         'gross_pay'        => round($grossPay, 2),
                         'total_deductions' => round($totalDeductions, 2),
                         'net_pay'          => round($grossPay, 2),
@@ -175,7 +181,45 @@ class PayrollController extends Controller
      */
     public function show(Payroll $payroll)
     {
-        //
+
+        return Inertia::render('payroll/Show', [
+            'payroll' => [
+                'id'          => $payroll->id,
+                'payroll_date'=> $payroll->pay_date,
+                'date_from'   => $payroll->period_start,
+                'date_to'     => $payroll->period_end,
+                'status'      => $payroll->status,
+            ],
+
+            'items' => $payroll->items->map(fn ($item) => [
+                'id'                => $item->id,
+                'employee' => [
+                    'employee_no' => $item->employee->employee_code,
+                    'name'        => $item->employee->first_name . ' ' . $item->employee->last_name,
+                    'position'    => $item->employee->position?->name,
+                ],
+
+                'basic_salary'     => (float) $item->basic_salary,
+                'total_attendance' => (float) $item->total_attendance,
+                'total_overtime'   => (float) $item->total_overtime,
+
+                'gross_pay'        => number_format((float) $item->gross_pay, 2),
+                'total_deductions' => number_format((float) $item->total_deductions, 2),
+                'net_pay'          => number_format((float) $item->net_pay, 2),
+
+                'earnings' => $item->earnings->map(fn ($e) => [
+                    'type'   => $e->type,
+                    'label'  => $e->label,
+                    'amount' => (float) $e->amount,
+                ]),
+
+                'deductions' => $item->deductions->map(fn ($d) => [
+                    'type'   => $d->type,
+                    'source' => $d->source,
+                    'amount' => (float) $d->amount,
+                ]),
+            ]),
+        ]);
     }
 
     /**
