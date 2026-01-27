@@ -37,6 +37,11 @@ const mainNavItems: NavItem[] = [
         href: "/employeegovernmentdeductions",
         icon: LayoutGrid,
     },
+    {
+        title: 'Payroll',
+        href: "/payrolls",
+        icon: LayoutGrid,
+    },
 ];
 
 const managementItems: NavItem[] = [

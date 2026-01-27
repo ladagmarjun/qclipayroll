@@ -13,6 +13,7 @@ use App\Http\Controllers\EmployeeGovernmentDeductionController;
 use App\Http\Controllers\EmployeeLoanController;
 use App\Http\Controllers\GovernmentDeductionController;
 use App\Http\Controllers\OvertimeController;
+use App\Http\Controllers\PayrollController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -35,6 +36,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('loanmanagements', EmployeeLoanController::class);
     Route::resource('governmentdeductions', GovernmentDeductionController::class);
     Route::resource('employeegovernmentdeductions', EmployeeGovernmentDeductionController::class);
+    Route::resource('payrolls', PayrollController::class);
+    Route::post('payrolls/{id}/pay', [PayrollController::class, 'pay'])->name('payrolls.pay');
 });
 
 require __DIR__.'/settings.php';

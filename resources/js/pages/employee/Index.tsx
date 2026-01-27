@@ -440,7 +440,7 @@ export default function Dashboard({ employees, departments, divisions, positions
 
                         {/* Salary */}
                         <div>
-                            <Label>Salary</Label>
+                            <Label>Salary per Day</Label>
                             <Input
                                 type="number"
                                 value={data.salary}

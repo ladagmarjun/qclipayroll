@@ -363,7 +363,7 @@ export default function Dashboard({ attendances, employees, filters }: Props) {
                             </DialogDescription>
                         </DialogHeader>
 
-                        <div className="space-y-4">
+                        <div className="space-y-4 overflow-y-scroll h-[600px]">
                             <div>
                                 <Label htmlFor="employee_id">Select Employee</Label>
                                 <Select
