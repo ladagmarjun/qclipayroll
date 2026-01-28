@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance;
-use App\Models\Division;
+use Carbon\Carbon;
 use Inertia\Inertia;
 use App\Models\Payroll;
+use App\Models\Division;
 use App\Models\Employee;
 use App\Models\Overtime;
-use App\Models\PayrollDeduction;
+use App\Models\Attendance;
 use App\Models\PayrollItem;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\PayrollDeduction;
 use Illuminate\Support\Facades\DB;
 
 class PayrollController extends Controller
@@ -21,7 +22,7 @@ class PayrollController extends Controller
      */
     public function index()
     {
-        $payrolls = Payroll::with(['division'])->get();
+        $payrolls = Payroll::orderBy('pay_date','desc')->with(['division'])->get();
         return Inertia::render('payroll/Index', [
             'payrolls' => $payrolls,
             'divisions' => Division::get(),
@@ -146,8 +147,8 @@ class PayrollController extends Controller
 
                 $totalAttendance = $totalAttendanceMinutes - $totalAttendanceOvertime;
                 $totalOvertime = $approvedOTMinutes + $totalAttendanceOvertime;
-                $attendancePay = ($totalAttendance) * $salaryPerMinute;
-                $overtimePay = ($totalOvertime) * ($salaryPerMinute);
+                $attendancePay = round($totalAttendance / 60, 2) * $salaryPerHour;
+                $overtimePay = round($totalOvertime / 60, 2) * $salaryPerHour;
 
                 $grossPay = $attendancePay + $overtimePay;
 
@@ -291,13 +292,21 @@ class PayrollController extends Controller
             ]),
         ]);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Payroll $payroll)
+    
+    public function export(Payroll $payroll)
     {
-        //
+        $items = $payroll->items()->with(['employee', 'deductions'])->get();
+
+        $summary = [
+            'employees' => $items->count(),
+            'gross' => $items->sum('gross_pay'),
+            'deductions' => $items->sum('total_deductions'),
+            'net' => $items->sum('net_pay'),
+        ];
+
+        return Pdf::loadView('payroll.summarypdf', compact('payroll', 'items', 'summary'))
+            ->setPaper('A4')
+            ->stream("Payroll-{$payroll->payroll_date}.pdf");
     }
 
     /**

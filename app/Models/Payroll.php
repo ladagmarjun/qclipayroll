@@ -24,6 +24,11 @@ class Payroll extends Model
         return $this->hasMany(PayrollItem::class);
     }
 
+    public function deductions(): HasMany
+    {
+        return $this->hasMany(PayrollDeduction::class);
+    }
+
     public function division(): BelongsTo
     {
         return $this->belongsTo(Division::class);

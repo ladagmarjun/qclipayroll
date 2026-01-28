@@ -72,11 +72,33 @@ export default function Show({ payroll, items }: Props) {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Payroll Details</span>
-            <Badge variant={payroll.status === 'Paid' ? 'default' : payroll.status === "Cancel" ? 'destructive' : 'secondary'}>
-              {payroll.status}
-            </Badge>
+
+            <div className="flex items-center gap-2">
+              {/* Status Badge */}
+              <Badge
+                variant={
+                  payroll.status === 'Paid'
+                    ? 'default'
+                    : payroll.status === 'Cancel'
+                    ? 'destructive'
+                    : 'secondary'
+                }
+              >
+                {payroll.status}
+              </Badge>
+
+              {/* Print Payroll Button */}
+              <a
+                href={`/payrolls/${payroll.id}/print`} // your Laravel route for PDF
+                target="_blank"
+                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+              >
+                Print
+              </a>
+            </div>
           </CardTitle>
         </CardHeader>
+
         <CardContent className="text-sm text-muted-foreground">
           Payroll Date: <strong>{payroll.payroll_date}</strong> <br />
           Period: <strong>{payroll.date_from}</strong> → <strong>{payroll.date_to}</strong>
@@ -129,8 +151,8 @@ export default function Show({ payroll, items }: Props) {
                       <TableCell>{item.employee.employee_no}</TableCell>
                       <TableCell>{item.employee.name}</TableCell>
                       <TableCell>{item.employee.position ?? '-'}</TableCell>
-                      <TableCell className="text-center">{item.total_attendance > 0 ? item.total_attendance / 60 : 0}</TableCell>
-                      <TableCell className="text-center">{item.total_overtime > 0 ? item.total_overtime / 60 : 0}</TableCell>
+                      <TableCell className="text-center">{item.total_attendance > 0 ? (item.total_attendance / 60).toFixed(2) : 0}</TableCell>
+                      <TableCell className="text-center">{item.total_overtime > 0 ? (item.total_overtime / 60).toFixed(2) : 0}</TableCell>
                       <TableCell className="text-right">{item.employee.salary }</TableCell>
                       <TableCell className="text-right">
                         ₱ {item.gross_pay}
