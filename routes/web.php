@@ -37,6 +37,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('governmentdeductions', GovernmentDeductionController::class);
     Route::resource('employeegovernmentdeductions', EmployeeGovernmentDeductionController::class);
     Route::resource('payrolls', PayrollController::class);
-});
+
+    Route::patch('/payrolls/{payroll}/paid', [PayrollController::class, 'markAsPaid'])
+        ->name('payrolls.markPaid');
+
+    Route::patch('/payrolls/{payroll}/cancel', [PayrollController::class, 'cancel'])
+        ->name('payrolls.cancel');
+    });
 
 require __DIR__.'/settings.php';

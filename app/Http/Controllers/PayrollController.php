@@ -31,10 +31,26 @@ class PayrollController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function markAsPaid(Payroll $payroll)
     {
-        //
+        if ($payroll) {
+            $payroll->status = 'Paid';
+            $payroll->save();
+        }
+
+        return redirect()->back()->with('success', 'Successfully mark as Paid');
     }
+
+    public function cancel(Payroll $payroll)
+    {
+        if ($payroll) {
+            $payroll->status = 'Cancel';
+            $payroll->save();
+        }
+
+        return redirect()->back()->with('success', 'Payroll marked as canceled');
+    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -48,6 +64,21 @@ class PayrollController extends Controller
             'pay_date'     => 'required|date',
             'apply_deductions' => 'required|boolean',
         ]);
+
+        $exists = Payroll::where('division_id', $request->division_id)
+            ->where(function ($query) use ($request) {
+                $query
+                    ->where('period_start', '<=', $request->period_end)
+                    ->where('period_end', '>=', $request->period_start);
+            })
+            ->where('status', '!=', 'Cancel')
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors([
+                'pay_date' => 'Payroll for this period and pay date is already generated.'
+            ]);
+        }
 
         DB::transaction(function () use ($request) {
 
@@ -161,12 +192,12 @@ class PayrollController extends Controller
 
             PayrollDeduction::create([
                 'payroll_item_id' => $payrollItem->id,
-                'type'             => $deduction->governmentDeduction->name,
+                'type'             => $deduction->deduction->name,
                 'amount'           => $amount,
                 'source'           => $deduction->deduction->code,
             ]);
 
-            $totalDeductions += $amount;
+            $deductions += $amount;
         }
 
         if ($employee->loan_balance > 0) {

@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout'
 import { dashboard } from '@/routes'
-import { Head, Link, useForm } from '@inertiajs/react'
+import { Head, Link, router, useForm } from '@inertiajs/react'
 import { type BreadcrumbItem } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +17,19 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
+import { useState } from 'react'
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Payroll', href: dashboard().url },
@@ -40,6 +53,12 @@ interface Props {
 }
 
 export default function PayrollIndex({ payrolls, divisions}: Props) {
+
+  const [confirmAction, setConfirmAction] = useState<{
+    id: number
+    type: 'paid' | 'cancel'
+  } | null>(null)
+
   const { data, setData, post, processing, errors} = useForm({
     period_start: '',
     period_end: '',
@@ -50,6 +69,20 @@ export default function PayrollIndex({ payrolls, divisions}: Props) {
 
   const createPayroll = () => {
     post(route('payrolls.store'))
+  }
+
+  const proceedAction = () => {
+  if (!confirmAction) return
+
+    if (confirmAction.type === 'paid') {
+      router.patch(route('payrolls.markPaid', confirmAction.id))
+    }
+
+    if (confirmAction.type === 'cancel') {
+      router.patch(route('payrolls.cancel', confirmAction.id))
+    }
+
+    setConfirmAction(null)
   }
 
   return (
@@ -142,11 +175,49 @@ export default function PayrollIndex({ payrolls, divisions}: Props) {
                   <TableCell>{p.period_start} - {p.period_end}</TableCell>
                   <TableCell>{p.division.name}</TableCell>
                   <TableCell>{p.pay_date}</TableCell>
-                  <TableCell>{p.status}</TableCell>
                   <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-semibold
+                        ${p.status === 'Paid' && 'bg-green-100 text-green-700'}
+                        ${p.status === 'draft' && 'bg-yellow-100 text-yellow-700'}
+                        ${p.status === 'Cancel' && 'bg-red-100 text-red-700'}
+                      `}
+                    >
+                      {p.status.toUpperCase()}
+                    </span>
+                </TableCell>
+                  <TableCell className='gap-2 flex'>
                     <Link href={route('payrolls.show', p.id)}>
                       <Button variant="link">View</Button>
                     </Link>
+
+                    {p.status === 'draft' && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="success"
+                          onClick={() => setConfirmAction({ id: p.id, type: 'paid' })}
+                        >
+                          Mark Paid
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => setConfirmAction({ id: p.id, type: 'cancel' })}
+                        >
+                          Cancel
+                        </Button>
+                      </>
+                    )}
+
+                    {p.status === 'paid' && (
+                      <span className="text-sm text-green-600 font-medium">Paid</span>
+                    )}
+
+                    {p.status === 'cancelled' && (
+                      <span className="text-sm text-red-600 font-medium">Cancelled</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -154,6 +225,39 @@ export default function PayrollIndex({ payrolls, divisions}: Props) {
           </Table>
         </CardContent>
       </Card>
+      <AlertDialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmAction?.type === 'paid'
+                ? 'Mark payroll as paid?'
+                : 'Cancel payroll?'}
+            </AlertDialogTitle>
+
+            <AlertDialogDescription>
+              {confirmAction?.type === 'paid'
+                ? 'This action will finalize the payroll and cannot be undone.'
+                : 'This payroll will be cancelled and cannot be processed.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Back</AlertDialogCancel>
+
+            <AlertDialogAction
+              className={
+                confirmAction?.type === 'paid'
+                  ? 'bg-green-600 hover:bg-green-700'
+                  : 'bg-red-600 hover:bg-red-700'
+              }
+              onClick={proceedAction}
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </AppLayout>
   )
 }
