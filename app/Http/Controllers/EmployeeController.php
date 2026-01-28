@@ -62,6 +62,7 @@ class EmployeeController extends Controller
             'name' => $request->first_name . ' ' . $request->last_name,
             'email' => $email,
             'password' => bcrypt('123456789'),
+            'division_id' => $request->division_id,
         ]);
 
         $request->merge(['user_id' => $user->id]);

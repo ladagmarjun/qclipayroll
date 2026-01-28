@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -27,6 +28,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'division_id',
     ];
 
     /**
@@ -54,7 +56,12 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
-    
+
+    public function division(): BelongsTo
+    {
+        return $this->belongsTo(Division::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

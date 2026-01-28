@@ -81,6 +81,11 @@ const managementItems: NavItem[] = [
     //     icon: LayoutGrid,
     // },
     {
+        title: 'Users',
+        href: "/users",
+        icon: LayoutGrid,
+    },
+    {
         title: 'Roles',
         href: "/roles",
         icon: LayoutGrid,

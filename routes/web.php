@@ -15,6 +15,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeLoanController;
 use App\Http\Controllers\GovernmentDeductionController;
 use App\Http\Controllers\EmployeeGovernmentDeductionController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -38,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('governmentdeductions', GovernmentDeductionController::class);
     Route::resource('employeegovernmentdeductions', EmployeeGovernmentDeductionController::class);
     Route::resource('payrolls', PayrollController::class);
+    Route::resource('users', UserController::class);
 
     Route::patch('/payrolls/{payroll}/paid', [PayrollController::class, 'markAsPaid'])
         ->name('payrolls.markPaid');
