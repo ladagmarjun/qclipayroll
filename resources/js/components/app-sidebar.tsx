@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, User } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -21,26 +21,31 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+        permission: 'home',
     },
     {
         title: 'Attendances',
         href: '/attendances',
         icon: LayoutGrid,
+        permission: 'view attendance',
     },
     {
         title: 'Overtimes',
         href: '/overtimes',
         icon: LayoutGrid,
+        permission: 'view overtime',
     },
     {
         title: 'Employee Deductions',
         href: "/employeegovernmentdeductions",
         icon: LayoutGrid,
+        permission: 'view employee deduction',
     },
     {
         title: 'Payroll',
         href: "/payrolls",
         icon: LayoutGrid,
+        permission: 'view payroll',
     },
 ];
 
@@ -49,31 +54,37 @@ const managementItems: NavItem[] = [
         title: 'Employees',
         href: "/employees",
         icon: LayoutGrid,
+        permission: 'view employee',
     },
     {
         title: 'Divisions',
         href: "/divisions",
         icon: LayoutGrid,
+        permission: 'view division',
     },
     {
         title: 'Departments',
         href:  "/departments",
         icon: LayoutGrid,
+        permission: 'view departments',
     },
     {
         title: 'Positions',
         href: "/positions",
         icon: LayoutGrid,
+        permission: 'view positions',
     },
     {
         title: 'Schedules',
         href: "/schedules",
         icon: LayoutGrid,
+        permission: 'schedule',
     },
     {
         title: 'Government Deductions',
         href: "/governmentdeductions",
         icon: LayoutGrid,
+        permission: 'government deduction',
     },
     // {
     //     title: 'Employee Loans',
@@ -83,12 +94,14 @@ const managementItems: NavItem[] = [
     {
         title: 'Users',
         href: "/users",
-        icon: LayoutGrid,
+        icon: User,
+        permission: 'view user',
     },
     {
         title: 'Roles',
         href: "/roles",
         icon: LayoutGrid,
+        permission: 'manage roles',
     },
 ];
 

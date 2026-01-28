@@ -8,15 +8,19 @@ import {
 import { useActiveUrl } from '@/hooks/use-active-url';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
+import { usePermission } from '@/hooks/use-permission'
 
 export function NavMain({ items = [], title }: { items: NavItem[], title?: string }) {
     const { urlIsActive } = useActiveUrl();
+    const { hasPermission } = usePermission()
 
     return (
         <SidebarGroup className="px-2 py-0">
             <SidebarGroupLabel>{title}</SidebarGroupLabel>
             <SidebarMenu>
-                {items.map((item) => (
+                {items .filter(item =>
+                        hasPermission(item.permission)
+                    ).map((item) => (
                     <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton
                             asChild

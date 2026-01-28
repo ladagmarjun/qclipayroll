@@ -36,7 +36,15 @@ class PermissionSeeder extends Command
             // Users
             'create attendace',
             'delete attendance',
-            'view user',
+            'view attendance',
+            'view overtime',
+
+            'government deduction',
+            'schedule',
+            'home',
+            'view division',
+            'view positions',
+            'view departments',
 
             // employee
             'create employee',
@@ -44,6 +52,7 @@ class PermissionSeeder extends Command
             'view employee',
             'add salary',
             'add allowance',
+            'view employee deduction',
 
             // payroll
             'generate payroll',
