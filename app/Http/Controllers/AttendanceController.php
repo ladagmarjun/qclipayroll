@@ -20,9 +20,8 @@ class AttendanceController extends Controller
             $query = $query->where('employee_id', $request->employeeId);
         }
         
-        $attendances = $query->where('status', 'Created')
-            ->paginate(15)
-            ->withQueryString(); ;
+        $attendances = $query->paginate(20)
+            ->withQueryString();
         $employees = Employee::with('schedules.schedule')->get();
 
         return inertia('attendance/Index', [

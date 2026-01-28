@@ -280,11 +280,11 @@ export default function Dashboard({ attendances, employees, filters }: Props) {
                                 <TableHead>Time In / Time Out</TableHead>
                                 <TableHead>Late Minutes</TableHead>
                                 <TableHead>Undertime Minutes</TableHead>
-                                <TableHead>Overtime Minutes</TableHead>
-                                <TableHead>Breaktime Minutes</TableHead>
-                                <TableHead>Total Minutes</TableHead>
+                                <TableHead>Overtime Hours</TableHead>
+                                <TableHead>Breaktime Hours</TableHead>
+                                <TableHead>Total Hours</TableHead>
                                 <TableHead>Remarks</TableHead>
-                                <TableHead>Action</TableHead>
+                                <TableHead>Action / Status</TableHead>
                             </TableRow>
                         </TableHeader>
 
@@ -297,12 +297,12 @@ export default function Dashboard({ attendances, employees, filters }: Props) {
                                     <TableCell>{formatTime(e.time_in_actual)} - {formatTime(e.time_out_actual)}</TableCell>
                                     <TableCell>{e.late_minutes}</TableCell>
                                     <TableCell>{e.undertime_minutes}</TableCell>
-                                    <TableCell>{e.overtime_minutes}</TableCell>
-                                    <TableCell>{e.break_time_minutes}</TableCell>
-                                    <TableCell>{e.total_minutes}</TableCell>
+                                    <TableCell className='text-center'>{e.overtime_minutes > 0 ? e.overtime_minutes / 60 : 0}</TableCell>
+                                    <TableCell className='text-center'>{e.break_time_minutes > 0 ? e.break_time_minutes / 60 : 0}</TableCell>
+                                    <TableCell className='text-center'>{e.total_minutes / 60}</TableCell>
                                     <TableCell>{e.remarks}</TableCell>
                                     <TableCell>
-                                        {e.status == 'Created' && (
+                                        {e.status == 'Created' ? (
                                             <Button
                                                 key={e.id}
                                                 variant="outline"
@@ -311,6 +311,15 @@ export default function Dashboard({ attendances, employees, filters }: Props) {
                                             >
                                                 Delete
                                             </Button>
+                                        ) : (
+                                            <span
+                                                className={`px-2 py-1 rounded text-xs font-medium
+                                                ${e.status === 'Generated' && 'bg-green-100 text-blue-700'}
+                                                ${e.status === 'Paid' && 'bg-green-100 text-green-700'}
+                                                `}
+                                            >
+                                                {e.status}
+                                            </span>
                                         )}
                                     </TableCell>
                                 </TableRow>

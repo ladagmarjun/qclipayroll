@@ -177,14 +177,16 @@ export default function Index({ employees, overtimes }: Props) {
                             <TableCell>{overtime.minutes_duration}</TableCell>
                             <TableCell>{overtime.status}</TableCell>
                             <TableCell>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => openEditModal(overtime)}
-                                >
-                                    <Edit2 className="mr-2 w-4 h-4" />
-                                    Edit
-                                </Button>
+                                { overtime.status == 'Pending' && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => openEditModal(overtime)}
+                                    >
+                                        <Edit2 className="mr-2 w-4 h-4" />
+                                        Edit
+                                    </Button>
+                                )}
                             </TableCell>
                         </TableRow>
                         ))}

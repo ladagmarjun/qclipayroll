@@ -21,8 +21,7 @@ class OvertimeController extends Controller
             $query = $query->where('employee_id', $request->employeeId);
         }
         
-        $overtimes =   $query->where('status', 'Pending')
-            ->latest()
+        $overtimes = $query->latest()
             ->paginate(10)
             ->withQueryString();
 

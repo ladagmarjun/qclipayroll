@@ -36,6 +36,16 @@ class PayrollController extends Controller
         if ($payroll) {
             $payroll->status = 'Paid';
             $payroll->save();
+            
+            Attendance::where('payroll_id', $payroll->id)
+                ->update([
+                    'status'=> 'Paid',
+                ]);
+                
+            Overtime::where('payroll_id', $payroll->id)
+                ->update([
+                    'status'=> 'Paid',
+                ]);
         }
 
         return redirect()->back()->with('success', 'Successfully mark as Paid');
@@ -46,6 +56,18 @@ class PayrollController extends Controller
         if ($payroll) {
             $payroll->status = 'Cancel';
             $payroll->save();
+            
+            Attendance::where('payroll_id', $payroll->id)
+                ->update([
+                    'payroll_id' => 0,
+                    'status'=> 'Created',
+                ]);
+                
+            Overtime::where('payroll_id', $payroll->id)
+                ->update([
+                    'payroll_id' => 0,
+                    'status'=> 'Pending',
+                ]);
         }
 
         return redirect()->back()->with('success', 'Payroll marked as canceled');
@@ -160,6 +182,22 @@ class PayrollController extends Controller
                         'net_pay'          => round($netPay, 2),
                     ]);
                 }
+                
+                Attendance::where('employee_id', $employee->id)
+                    ->where('status', 'Created')
+                    ->whereBetween('attendance_date', [$dateFrom, $dateTo])
+                    ->update([
+                        'payroll_id' => $payroll->id,
+                        'status'=> 'Generated',
+                    ]);
+
+                Overtime::where('employee_id', $employee->id)
+                    ->where('status', 'Pending')
+                    ->whereBetween('date_from', [$dateFrom, $dateTo])
+                    ->update([
+                        'payroll_id' => $payroll->id,
+                        'status'=> 'Generated',
+                    ]);
             }
         });
 
@@ -228,6 +266,7 @@ class PayrollController extends Controller
                     'employee_no' => $item->employee->employee_code,
                     'name'        => $item->employee->first_name . ' ' . $item->employee->last_name,
                     'position'    => $item->employee->position?->name,
+                    'salary'    => $item->employee->salary,
                 ],
 
                 'basic_salary'     => (float) $item->basic_salary,

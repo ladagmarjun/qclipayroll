@@ -20,6 +20,7 @@ class Attendance extends Model
         'total_minutes',
         'remarks',
         'status',
+        'payroll_id',
     ];
 
     public function employee()

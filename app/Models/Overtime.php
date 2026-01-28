@@ -14,6 +14,7 @@ class Overtime extends Model
         'minutes_duration',
         'remarks',
         'status',
+        'payroll_id',
     ];
 
     public function employee(): BelongsTo

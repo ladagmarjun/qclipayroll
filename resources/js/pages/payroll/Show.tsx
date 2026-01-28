@@ -32,6 +32,7 @@ interface PayrollItem {
     employee_no: string
     name: string
     position?: string
+    salary: number
   }
   basic_salary: number
   total_attendance: number
@@ -71,7 +72,7 @@ export default function Show({ payroll, items }: Props) {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Payroll Details</span>
-            <Badge variant={payroll.status === 'Approved' ? 'default' : 'secondary'}>
+            <Badge variant={payroll.status === 'Paid' ? 'default' : payroll.status === "Cancel" ? 'destructive' : 'secondary'}>
               {payroll.status}
             </Badge>
           </CardTitle>
@@ -96,6 +97,9 @@ export default function Show({ payroll, items }: Props) {
                 <TableHead>Employee No</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Position</TableHead>
+                <TableHead className="text-center">Total Hours</TableHead>
+                <TableHead className="text-center">Total Overtime</TableHead>
+                <TableHead className="text-right">Daily Rate</TableHead>
                 <TableHead className="text-right">Gross Pay</TableHead>
                 <TableHead className="text-right">Deductions</TableHead>
                 <TableHead className="text-right">Net Pay</TableHead>
@@ -125,6 +129,9 @@ export default function Show({ payroll, items }: Props) {
                       <TableCell>{item.employee.employee_no}</TableCell>
                       <TableCell>{item.employee.name}</TableCell>
                       <TableCell>{item.employee.position ?? '-'}</TableCell>
+                      <TableCell className="text-center">{item.total_attendance > 0 ? item.total_attendance / 60 : 0}</TableCell>
+                      <TableCell className="text-center">{item.total_overtime > 0 ? item.total_overtime / 60 : 0}</TableCell>
+                      <TableCell className="text-right">{item.employee.salary }</TableCell>
                       <TableCell className="text-right">
                         ₱ {item.gross_pay}
                       </TableCell>
